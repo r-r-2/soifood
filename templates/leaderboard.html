@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Community Leaderboard · soifood Bangkok</title>
+
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <meta name="theme-color" content="#1a2f4a">
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; background: #1a2f4a; }
+
+    .kra-jab {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='20' y='2' width='8' height='8' transform='rotate(45 20 6)' fill='none' stroke='%23B8924A' stroke-width='0.5' opacity='0.25'/%3E%3C/svg%3E");
+      background-size: 40px 40px;
+    }
+
+    .rank-card {
+      background: #1e3a5f;
+      border: 1px solid #2a4a6e;
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .rank-card:hover { border-color: #B8924A; }
+
+    .rank-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4a6a8a;
+      min-width: 28px;
+      text-align: center;
+    }
+    .rank-num.gold   { color: #B8924A; font-size: 20px; }
+    .rank-num.silver { color: #94a3b8; font-size: 18px; }
+    .rank-num.bronze { color: #b45309; font-size: 16px; }
+
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #B8924A, #1e3a5f);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      border: 1px solid #2a4a6e;
+      flex-shrink: 0;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.4s ease forwards; }
+  </style>
+</head>
+
+<body class="min-h-screen pb-16">
+
+  <!-- Header -->
+  <header class="kra-jab border-b border-[#2a4a6e] px-5 pt-10 pb-8 text-center">
+    <a href="/vendors" class="absolute left-5 top-10 text-[#4a6a8a] text-sm hover:text-[#B8924A] transition-colors no-underline" style="position:absolute;">← Browse</a>
+    <div class="flex justify-center mb-4">
+      <img src="/static/logo.png" alt="soifood" class="h-9 object-contain"
+           onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'">
+      <span id="logo-text" style="display:none;color:#B8924A;font-size:20px;font-weight:500;">soifood</span>
+    </div>
+    <h1 class="text-white text-2xl font-bold tracking-tight">Community Leaderboard</h1>
+    <p class="text-[#4a6a8a] text-sm mt-1 max-w-xs mx-auto">The people building Bangkok's street food story</p>
+  </header>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border"></div>
+
+  <main class="max-w-lg mx-auto px-5 pt-7 pb-10">
+
+    {% if board %}
+
+    <!-- Top 3 podium -->
+    {% if board|length >= 3 %}
+    <div class="grid grid-cols-3 gap-3 mb-8 fade-up">
+      <!-- 2nd place -->
+      <div class="text-center pt-6">
+        <div class="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-lg font-bold text-white mb-2"
+             style="background:linear-gradient(135deg,#94a3b8,#475569);">
+          {{ board[1].name[0] | upper }}
+        </div>
+        <p class="text-white text-xs font-medium truncate">{{ board[1].name }}</p>
+        <p class="text-[#94a3b8] text-lg font-bold">{{ board[1].points }}</p>
+        <p class="text-[#4a6a8a] text-xs">pts</p>
+        <div class="mt-2 h-10 rounded-t-lg" style="background:#1e3a5f;border:1px solid #2a4a6e;border-bottom:none;"></div>
+      </div>
+      <!-- 1st place -->
+      <div class="text-center">
+        <p class="text-xl mb-1">👑</p>
+        <div class="w-14 h-14 rounded-full mx-auto flex items-center justify-center text-xl font-bold text-[#0a1a2e] mb-2"
+             style="background:linear-gradient(135deg,#B8924A,#D4AA6A);">
+          {{ board[0].name[0] | upper }}
+        </div>
+        <p class="text-white text-xs font-medium truncate">{{ board[0].name }}</p>
+        <p class="text-[#B8924A] text-xl font-bold">{{ board[0].points }}</p>
+        <p class="text-[#4a6a8a] text-xs">pts</p>
+        <div class="mt-2 h-16 rounded-t-lg" style="background:#1e3a5f;border:1px solid #B8924A;border-bottom:none;"></div>
+      </div>
+      <!-- 3rd place -->
+      <div class="text-center pt-10">
+        <div class="w-10 h-10 rounded-full mx-auto flex items-center justify-center text-base font-bold text-white mb-2"
+             style="background:linear-gradient(135deg,#b45309,#78350f);">
+          {{ board[2].name[0] | upper }}
+        </div>
+        <p class="text-white text-xs font-medium truncate">{{ board[2].name }}</p>
+        <p class="text-[#b45309] text-base font-bold">{{ board[2].points }}</p>
+        <p class="text-[#4a6a8a] text-xs">pts</p>
+        <div class="mt-2 h-6 rounded-t-lg" style="background:#1e3a5f;border:1px solid #2a4a6e;border-bottom:none;"></div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Full list -->
+    <div class="flex flex-col gap-3">
+      {% for entry in board %}
+      <div class="rank-card fade-up" style="animation-delay: {{ loop.index0 * 50 }}ms">
+        <!-- Rank -->
+        <div class="rank-num {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% elif loop.index == 3 %}bronze{% endif %}">
+          {% if loop.index == 1 %}🥇
+          {% elif loop.index == 2 %}🥈
+          {% elif loop.index == 3 %}🥉
+          {% else %}{{ loop.index }}{% endif %}
+        </div>
+
+        <!-- Avatar -->
+        <div class="avatar">{{ entry.name[0] | upper }}</div>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+          <p class="text-white font-medium text-sm truncate">{{ entry.name }}</p>
+          <p class="text-[#4a6a8a] text-xs mt-0.5">
+            {{ entry.vendors }} vendor{{ 's' if entry.vendors != 1 else '' }} visited
+          </p>
+        </div>
+
+        <!-- Points -->
+        <div class="text-right shrink-0">
+          <p class="text-[#B8924A] font-bold text-lg">{{ entry.points }}</p>
+          <p class="text-[#4a6a8a] text-xs">pts</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="text-center py-20 fade-up">
+      <p class="text-5xl mb-5">🍜</p>
+      <p class="text-white font-medium text-lg">No check-ins yet</p>
+      <p class="text-[#4a6a8a] text-sm mt-2 max-w-xs mx-auto">
+        Be the first to visit a vendor and earn points on the leaderboard.
+      </p>
+      <a href="/vendors"
+         class="inline-block mt-8 px-6 py-3 rounded-[10px] font-bold text-[#0a1a2e] text-sm"
+         style="background:#B8924A;text-decoration:none;">
+        Browse vendors →
+      </a>
+    </div>
+    {% endif %}
+
+  </main>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border"></div>
+
+  <footer class="text-center py-6 text-[#4a6a8a] text-xs">
+    Powered by soifood · Free for Bangkok vendors
+  </footer>
+
+</body>
+</html>

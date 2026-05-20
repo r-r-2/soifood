@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ vendor.vendor_name_en }} · soifood QR Card</title>
+
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    @media print { .no-print { display: none !important; } }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #fff;
+      color: #1a2f4a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 340px;
+      background: #fff;
+      border: 2px solid #1a2f4a;
+      border-radius: 20px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 4px 24px rgba(26,47,74,0.12);
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .logo-img { height: 28px; object-fit: contain; }
+    .logo-text { color: #B8924A; font-size: 18px; font-weight: 500; }
+
+    .divider {
+      width: 100%;
+      height: 6px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='6'%3E%3Cpath d='M0 3 Q7.5 0 15 3 Q22.5 6 30 3 Q37.5 0 45 3 Q52.5 6 60 3' fill='none' stroke='%23B8924A' stroke-width='1'/%3E%3C/svg%3E");
+      background-repeat: repeat-x;
+      background-size: 60px 6px;
+      margin: 20px 0;
+      opacity: 0.7;
+    }
+
+    .qr-wrap {
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 8px;
+    }
+
+    .qr-wrap img { width: 100%; height: 100%; object-fit: contain; }
+
+    .vendor-name-thai {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a2f4a;
+      margin-top: 20px;
+      line-height: 1.2;
+    }
+
+    .vendor-name-en {
+      font-size: 14px;
+      font-weight: 500;
+      color: #B8924A;
+      margin-top: 4px;
+    }
+
+    .location {
+      font-size: 12px;
+      color: #4a6a8a;
+      margin-top: 8px;
+    }
+
+    .tagline {
+      font-size: 12px;
+      color: #4a6a8a;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    .url {
+      font-size: 11px;
+      color: #B8924A;
+      margin-top: 8px;
+      word-break: break-all;
+      font-weight: 500;
+    }
+
+    /* Print button */
+    .print-btn {
+      margin-top: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a2f4a;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .print-btn:hover { background: #B8924A; }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: #4a6a8a;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #B8924A; }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <!-- Logo -->
+    <div class="logo-row">
+      <img class="logo-img" src="/static/logo.png" alt="soifood"
+           onerror="this.style.display='none';document.getElementById('card-logo-text').style.display='block'">
+      <span id="card-logo-text" style="display:none;" class="logo-text">soifood</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QR code -->
+    <div class="qr-wrap">
+      <img src="/qr/{{ vendor.id }}" alt="QR code for {{ vendor.vendor_name_en }}">
+    </div>
+
+    <!-- Vendor info -->
+    <p class="vendor-name-thai">{{ vendor.vendor_name_thai }}</p>
+    <p class="vendor-name-en">{{ vendor.vendor_name_en }}</p>
+    <p class="location">📍 {{ vendor.location_display }}</p>
+
+    <div class="divider"></div>
+
+    <p class="tagline">Scan to see menu, order & check in</p>
+    <p class="url">{{ base_url }}/vendor/{{ vendor.id }}</p>
+  </div>
+
+  <!-- Actions (hidden on print) -->
+  <div class="no-print" style="text-align:center;">
+    <button class="print-btn" onclick="window.print()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2m2 4h6a2 2 0 0 0 2-2v-4H7v4a2 2 0 0 0 2 2z"/>
+      </svg>
+      Print · Screenshot to save
+    </button>
+    <br>
+    <a href="/vendor/{{ vendor.id }}" class="back-link">← Back to {{ vendor.vendor_name_en }}</a>
+  </div>
+
+</body>
+</html>
