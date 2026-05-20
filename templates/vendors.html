@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bangkok Street Food · soifood</title>
+
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <meta name="theme-color" content="#1a2f4a">
+
+  <meta property="og:title" content="Bangkok Street Food · soifood" />
+  <meta property="og:description" content="Discover Bangkok's best street food vendors. Bilingual menus, QR codes, community check-ins." />
+  <meta property="og:type" content="website" />
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; background: #1a2f4a; }
+
+    /* Kra Jab header pattern */
+    .kra-jab {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='20' y='2' width='8' height='8' transform='rotate(45 20 6)' fill='none' stroke='%23B8924A' stroke-width='0.5' opacity='0.25'/%3E%3C/svg%3E");
+      background-size: 40px 40px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: #0f1f30;
+      border: 1px solid #2a4a6e;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 14px 16px 14px 44px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .search-input::placeholder { color: #4a6a8a; }
+    .search-input:focus {
+      border-color: #B8924A;
+      box-shadow: 0 0 0 3px rgba(184,146,74,0.12);
+    }
+
+    .vendor-card {
+      background: #1e3a5f;
+      border: 1px solid #2a4a6e;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .vendor-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      border-color: #B8924A;
+    }
+
+    .card-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-img-placeholder {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(135deg, #0f1f30 0%, #1a2f4a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+
+    .checkin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 500;
+      color: #B8924A;
+      border: 1px solid #B8924A;
+      border-radius: 20px;
+      padding: 2px 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .view-btn {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid #B8924A;
+      color: #B8924A;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      padding: 8px 16px;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+    .view-btn:hover {
+      background: #B8924A;
+      color: #0a1a2e;
+    }
+
+    .add-stall-btn {
+      display: inline-block;
+      background: #B8924A;
+      color: #0a1a2e;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 14px 28px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .add-stall-btn:hover { background: #D4AA6A; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card-enter {
+      animation: fadeUp 0.35s ease forwards;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.7s linear infinite; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="kra-jab border-b border-[#2a4a6e] px-5 pt-10 pb-8 text-center">
+    <div class="flex justify-center mb-4">
+      <img src="/static/logo.png" alt="soifood" class="h-9 object-contain"
+           onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'">
+      <span id="logo-text" style="display:none;color:#B8924A;font-size:20px;font-weight:500;">soifood</span>
+    </div>
+    <h1 class="text-white text-2xl font-bold tracking-tight">Bangkok Street Food</h1>
+    <p class="text-[#4a6a8a] text-sm mt-1">Discover vendors · bilingual menus · community check-ins</p>
+  </header>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border"></div>
+
+  <!-- Search -->
+  <div class="max-w-2xl mx-auto px-5 pt-7 pb-4">
+    <div class="relative">
+      <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#4a6a8a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+      </svg>
+      <input
+        class="search-input"
+        type="text"
+        id="search"
+        placeholder="Search by location, BTS station, or area..."
+        oninput="filterVendors()"
+        autocomplete="off"
+      />
+    </div>
+    <p id="result-count" class="text-[#4a6a8a] text-xs mt-3 text-center"></p>
+  </div>
+
+  <!-- Vendor grid -->
+  <main class="max-w-2xl mx-auto px-5 pb-10" id="vendor-grid">
+    <!-- Loading state -->
+    <div id="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+      <svg class="spin w-8 h-8 text-[#B8924A]" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="12"/>
+      </svg>
+      <p class="text-[#4a6a8a] text-sm">Loading vendors…</p>
+    </div>
+
+    <!-- Grid populated by JS -->
+    <div id="cards" class="grid grid-cols-1 sm:grid-cols-2 gap-5 hidden"></div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden text-center py-16">
+      <p class="text-4xl mb-4">🔍</p>
+      <p class="text-white font-medium" id="empty-msg">No vendors found</p>
+      <p class="text-[#4a6a8a] text-sm mt-1">Try a different location or BTS station</p>
+    </div>
+  </main>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border"></div>
+
+  <!-- Add stall CTA -->
+  <section class="text-center py-12 px-5">
+    <p class="text-[#4a6a8a] text-sm mb-2">Are you a street food vendor?</p>
+    <p class="text-white font-medium mb-6">Get your free English menu + QR code in 5 minutes.</p>
+    <a href="/" class="add-stall-btn">Add your stall →</a>
+  </section>
+
+  <footer class="text-center pb-8 text-[#4a6a8a] text-xs">
+    Powered by soifood · Free for Bangkok vendors
+  </footer>
+
+  <script>
+    let allVendors = [];
+
+    function getPlaceholderEmoji(firstItem) {
+      const item = (firstItem || '').toLowerCase();
+      if (item.includes('pad thai') || item.includes('noodle')) return '🍜';
+      if (item.includes('rice') || item.includes('khao')) return '🍚';
+      if (item.includes('som tam') || item.includes('papaya')) return '🥗';
+      if (item.includes('grill') || item.includes('moo') || item.includes('pork')) return '🍖';
+      if (item.includes('soup') || item.includes('tom')) return '🍲';
+      if (item.includes('chicken') || item.includes('gai')) return '🍗';
+      return '🍽️';
+    }
+
+    function renderCard(v, idx) {
+      const emoji = getPlaceholderEmoji(v.first_item);
+      const photoHtml = v.photo_url
+        ? `<img class="card-img" src="${v.photo_url}" alt="${v.vendor_name_en}" loading="lazy">`
+        : `<div class="card-img-placeholder">${emoji}</div>`;
+
+      return `
+        <div class="vendor-card card-enter" style="animation-delay:${idx * 60}ms"
+             onclick="window.location='/vendor/${v.id}'">
+          ${photoHtml}
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div>
+                <p class="text-[#B8924A] font-medium text-base leading-tight">${v.vendor_name_thai}</p>
+                <p class="text-white text-sm leading-snug">${v.vendor_name_en}</p>
+              </div>
+              <span class="checkin-badge shrink-0">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                ${v.checkin_count}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1 mt-2 mb-3">
+              <svg class="w-3 h-3 text-[#4a6a8a] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+              </svg>
+              <p class="text-[#4a6a8a] text-xs truncate">${v.location_display}</p>
+            </div>
+
+            ${v.first_item ? `<p class="text-[#4a6a8a] text-xs mb-4">✦ ${v.first_item}</p>` : ''}
+
+            <a href="/vendor/${v.id}" class="view-btn" onclick="event.stopPropagation()">View menu →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function filterVendors() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const cards = document.getElementById('cards');
+      const emptyState = document.getElementById('empty-state');
+      const countEl = document.getElementById('result-count');
+
+      const filtered = q
+        ? allVendors.filter(v =>
+            (v.location_display || '').toLowerCase().includes(q) ||
+            (v.vendor_name_en || '').toLowerCase().includes(q) ||
+            (v.vendor_name_thai || '').toLowerCase().includes(q) ||
+            (v.first_item || '').toLowerCase().includes(q)
+          )
+        : allVendors;
+
+      if (filtered.length === 0) {
+        cards.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        document.getElementById('empty-msg').textContent =
+          q ? `No vendors found for "${q}"` : 'No vendors yet';
+        countEl.textContent = '';
+      } else {
+        cards.innerHTML = filtered.map((v, i) => renderCard(v, i)).join('');
+        cards.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        countEl.textContent = q
+          ? `${filtered.length} vendor${filtered.length !== 1 ? 's' : ''} found`
+          : `${filtered.length} vendors in Bangkok`;
+      }
+    }
+
+    async function loadVendors() {
+      try {
+        const res = await fetch('/api/vendors');
+        allVendors = await res.json();
+        document.getElementById('loading').classList.add('hidden');
+        filterVendors();
+      } catch (err) {
+        document.getElementById('loading').innerHTML =
+          '<p class="text-[#4a6a8a] text-sm py-20 text-center">Failed to load vendors. Please refresh.</p>';
+      }
+    }
+
+    loadVendors();
+  </script>
+
+</body>
+</html>
