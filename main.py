@@ -150,12 +150,12 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/")
 def onboard_form(request: Request):
-    return templates.TemplateResponse("onboard.html", {"request": request})
+    return templates.TemplateResponse(request, "onboard.html")
 
 
 @app.get("/vendors")
 def browse_vendors(request: Request):
-    return templates.TemplateResponse("vendors.html", {"request": request})
+    return templates.TemplateResponse(request, "vendors.html")
 
 
 @app.post("/onboard")
@@ -221,8 +221,7 @@ def vendor_microsite(request: Request, vendor_id: int):
 
         menu_items = json.loads(vendor.menu_items or "[]")
 
-        return templates.TemplateResponse("vendor.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "vendor.html", {
             "vendor": vendor,
             "profile_map": profile_map,
             "menu_items": menu_items,
@@ -265,8 +264,7 @@ def vendor_card(request: Request, vendor_id: int):
         vendor = session.get(Vendor, vendor_id)
         if not vendor:
             raise HTTPException(status_code=404, detail="Vendor not found")
-        return templates.TemplateResponse("card.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "card.html", {
             "vendor": vendor,
             "base_url": settings.base_url,
         })
@@ -356,7 +354,7 @@ def leaderboard(request: Request):
         reverse=True,
     )[:20]
 
-    return templates.TemplateResponse("leaderboard.html", {"request": request, "board": board})
+    return templates.TemplateResponse(request, "leaderboard.html", {"board": board})
 
 
 @app.get("/order-audio")
