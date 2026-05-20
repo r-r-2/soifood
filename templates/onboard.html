@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เปิดร้านบน soifood · Bangkok Street Food</title>
+
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+  <link rel="manifest" href="/static/site.webmanifest">
+  <meta name="theme-color" content="#1a2f4a">
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="/static/style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body { font-family: 'DM Sans', sans-serif; background: #1a2f4a; }
+
+    .field-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #B8924A;
+      margin-bottom: 6px;
+    }
+
+    .field-input {
+      width: 100%;
+      background: #0f1f30;
+      border: 1px solid #2a4a6e;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field-input::placeholder { color: #4a6a8a; }
+
+    .field-input:focus {
+      border-color: #B8924A;
+      box-shadow: 0 0 0 3px rgba(184,146,74,0.12);
+    }
+
+    .field-input.error {
+      border-color: #8B0000;
+      box-shadow: 0 0 0 3px rgba(139,0,0,0.12);
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: #B8924A;
+      color: #0a1a2e;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+
+    .submit-btn:hover { background: #D4AA6A; }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .step-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #2a4a6e;
+      transition: background 0.3s;
+    }
+    .step-dot.active { background: #B8924A; }
+
+    /* Kra Jab diamond header pattern */
+    .kra-jab {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Crect x='20' y='2' width='8' height='8' transform='rotate(45 20 6)' fill='none' stroke='%23B8924A' stroke-width='0.5' opacity='0.3'/%3E%3C/svg%3E");
+      background-size: 40px 40px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.45s ease forwards; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 0.7s linear infinite; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+  <!-- Header -->
+  <header class="kra-jab relative pt-10 pb-8 px-6 text-center border-b border-[#2a4a6e]">
+    <a href="/vendors" class="absolute left-5 top-10 text-[#4a6a8a] text-sm hover:text-[#B8924A] transition-colors">
+      ← Browse
+    </a>
+    <div class="flex justify-center mb-4">
+      <img src="/static/logo.png" alt="soifood" class="h-10 object-contain"
+           onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'">
+      <span id="logo-text" style="display:none;color:#B8924A;font-size:22px;font-weight:500;letter-spacing:-0.5px;">soifood</span>
+    </div>
+    <h1 class="text-white text-xl font-bold mb-1">ลงทะเบียนร้านของคุณ</h1>
+    <p class="text-[#4a6a8a] text-sm">ตอบ 6 คำถาม — ได้เว็บไซต์ฟรีพร้อม QR Code</p>
+  </header>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border"></div>
+
+  <!-- Form -->
+  <main class="max-w-lg mx-auto px-5 py-8 fade-up">
+
+    <form id="onboard-form" action="/onboard" method="POST" onsubmit="return handleSubmit(event)">
+      <input type="hidden" name="phone_hash" id="phone_hash_field">
+
+      <!-- Progress dots -->
+      <div class="flex items-center justify-center gap-2 mb-8">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+        <div class="step-dot" id="dot-4"></div>
+        <div class="step-dot" id="dot-5"></div>
+        <div class="step-dot" id="dot-6"></div>
+        <div class="step-dot" id="dot-phone"></div>
+      </div>
+
+      <!-- Q1 -->
+      <div class="mb-6" id="field-q1">
+        <label class="field-label" for="q1">Q1 · ชื่อร้านและชื่อของคุณคืออะไร?</label>
+        <input class="field-input" type="text" id="q1" name="q1" required
+          placeholder="เช่น ร้านป้าน้อย, ป้าน้อย สมใจ"
+          oninput="updateProgress()">
+      </div>
+
+      <!-- Q2 -->
+      <div class="mb-6" id="field-q2">
+        <label class="field-label" for="q2">Q2 · คุณขายอะไร และราคาเท่าไหร่?</label>
+        <textarea class="field-input" id="q2" name="q2" required rows="3"
+          placeholder="เช่น ผัดไทยกุ้งสด 60 บาท, ผัดไทยไก่ 50 บาท"
+          oninput="updateProgress()"></textarea>
+      </div>
+
+      <!-- Q3 -->
+      <div class="mb-6" id="field-q3">
+        <label class="field-label" for="q3">Q3 · ร้านของคุณอยู่ที่ไหน? ใกล้อะไรบ้าง?</label>
+        <input class="field-input" type="text" id="q3" name="q3" required
+          placeholder="เช่น ตลาดนัดสีลม ใกล้ BTS ศาลาแดง ทางออก 2"
+          oninput="updateProgress()">
+      </div>
+
+      <!-- Q4 -->
+      <div class="mb-6" id="field-q4">
+        <label class="field-label" for="q4">Q4 · เปิดวันไหนบ้าง และกี่โมงถึงกี่โมง?</label>
+        <input class="field-input" type="text" id="q4" name="q4" required
+          placeholder="เช่น ทุกวัน 17:00–23:00"
+          oninput="updateProgress()">
+      </div>
+
+      <!-- Q5 -->
+      <div class="mb-6" id="field-q5">
+        <label class="field-label" for="q5">Q5 · รับชำระเงินด้วยวิธีไหนบ้าง?</label>
+        <input class="field-input" type="text" id="q5" name="q5" required
+          placeholder="เช่น เงินสด, PromptPay, บัตรเครดิต"
+          oninput="updateProgress()">
+      </div>
+
+      <!-- Q6 -->
+      <div class="mb-6" id="field-q6">
+        <label class="field-label" for="q6">Q6 · ทำไมคุณถึงทำอาหารนี้? มีเรื่องราวอะไรเบื้องหลังบ้าง?</label>
+        <textarea class="field-input" id="q6" name="q6" required rows="4"
+          placeholder="เช่น สูตรแม่, ทำมา 20 ปี, ส่งลูกเรียน, ย้ายมาจากต่างจังหวัด..."
+          oninput="updateProgress()"></textarea>
+      </div>
+
+      <!-- Lai Thai border -->
+      <div class="lai-thai-border my-8"></div>
+
+      <!-- Phone confirmation -->
+      <div class="mb-2">
+        <p class="text-[#B8924A] text-xs uppercase tracking-widest font-medium mb-5">เบอร์โทรศัพท์ · Phone Number</p>
+
+        <div class="mb-4">
+          <label class="field-label" for="phone1">เบอร์โทรศัพท์ของคุณ</label>
+          <input class="field-input" type="tel" id="phone1" required
+            placeholder="เช่น 081-234-5678"
+            oninput="clearPhoneError(); updateProgress()">
+        </div>
+
+        <div class="mb-2">
+          <label class="field-label" for="phone2">ยืนยันเบอร์โทรศัพท์อีกครั้ง</label>
+          <input class="field-input" type="tel" id="phone2" required
+            placeholder="กรอกเบอร์อีกครั้ง"
+            oninput="clearPhoneError(); updateProgress()">
+        </div>
+
+        <p id="phone-error" class="text-[#c0392b] text-sm mt-2 hidden">
+          เบอร์โทรศัพท์ไม่ตรงกัน กรุณากรอกใหม่
+        </p>
+      </div>
+
+      <!-- Lai Thai border -->
+      <div class="lai-thai-border my-8"></div>
+
+      <!-- Submit -->
+      <button class="submit-btn" type="submit" id="submit-btn">
+        <span id="btn-label">สร้างร้านของฉัน · Create My Stall</span>
+        <span id="btn-spinner" class="hidden items-center justify-center gap-2">
+          <svg class="spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-dasharray="32" stroke-dashoffset="12"/>
+          </svg>
+          AI กำลังสร้างโปรไฟล์ของคุณ…
+        </span>
+      </button>
+
+      <p class="text-center text-[#4a6a8a] text-xs mt-4">ใช้เวลาประมาณ 5–10 วินาที · Takes about 5–10 seconds</p>
+
+    </form>
+  </main>
+
+  <!-- Lai Thai border -->
+  <div class="lai-thai-border mt-4"></div>
+
+  <footer class="text-center py-6 text-[#4a6a8a] text-xs">
+    Powered by soifood · Free for Bangkok vendors
+  </footer>
+
+  <script>
+    // SHA-256 via SubtleCrypto — no library needed
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function clearPhoneError() {
+      document.getElementById('phone1').classList.remove('error');
+      document.getElementById('phone2').classList.remove('error');
+      document.getElementById('phone-error').classList.add('hidden');
+    }
+
+    function updateProgress() {
+      const fields = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
+      const dots = ['dot-1','dot-2','dot-3','dot-4','dot-5','dot-6','dot-phone'];
+      fields.forEach((id, i) => {
+        const val = document.getElementById(id).value.trim();
+        document.getElementById(dots[i]).classList.toggle('active', val.length > 0);
+      });
+      const p1 = document.getElementById('phone1').value.trim();
+      const p2 = document.getElementById('phone2').value.trim();
+      document.getElementById('dot-phone').classList.toggle('active', p1.length > 0 && p2.length > 0);
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const phone1 = document.getElementById('phone1').value.trim();
+      const phone2 = document.getElementById('phone2').value.trim();
+
+      // Validate phone match
+      if (phone1 !== phone2) {
+        document.getElementById('phone1').classList.add('error');
+        document.getElementById('phone2').classList.add('error');
+        document.getElementById('phone-error').classList.remove('hidden');
+        document.getElementById('phone2').focus();
+        return false;
+      }
+
+      // Hash phone client-side
+      const hash = await sha256(phone1);
+      document.getElementById('phone_hash_field').value = hash;
+
+      // Show loading state
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      document.getElementById('btn-label').classList.add('hidden');
+      document.getElementById('btn-spinner').classList.remove('hidden');
+      document.getElementById('btn-spinner').classList.add('flex');
+
+      // Submit
+      e.target.submit();
+    }
+  </script>
+
+</body>
+</html>
