@@ -280,9 +280,7 @@ def vendor_qr(vendor_id: int):
     buf = io.BytesIO()
     img.save(buf, format="PNG")
     buf.seek(0)
-    return StreamingResponse(buf, media_type="image/png", headers={
-        "Content-Disposition": f"attachment; filename=soifood-vendor-{vendor_id}.png"
-    })
+    return StreamingResponse(buf, media_type="image/png")
 
 
 @app.post("/checkin/{vendor_id}")
