@@ -6,8 +6,22 @@ It gives street food vendors a multilingual digital presence, a bilingual menu,
 and community check-ins — connecting them with expat and tourist customers.
 Built for SEABW Bangkok hackathon, May 20 2026.
 
-## Brand
-- Brand name: always "soifood" — all lowercase, everywhere
+## Icons and manifest
+All favicon files already present in static/ — do not regenerate or overwrite them:
+- favicon.ico, favicon-16x16.png, favicon-32x32.png
+- apple-touch-icon.png, android-chrome-192x192.png, android-chrome-512x512.png
+- site.webmanifest — already configured with name: "soifood", theme_color: "#1a2f4a"
+- logo.png — soifood logo, use in header and og-banner
+
+Add to every template <head>:
+```html
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/static/site.webmanifest">
+<meta name="theme-color" content="#1a2f4a">
+```
 - Never write "SoiFood", "Soifood", or "SOIFOOD"
 - Logo file: static/logo.png — fallback to text "soifood" in --bkk-gold if not available
 
