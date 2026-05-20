@@ -2,7 +2,7 @@ fastapi
 uvicorn[standard]
 sqlmodel
 psycopg2-binary
-google-generativeai
+google-genai
 gtts
 python-multipart
 jinja2

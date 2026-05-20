@@ -1,16 +1,19 @@
 import json
 import re
 
-import google.generativeai as genai
+from google import genai
 
 from config import settings
 
-genai.configure(api_key=settings.gemini_api_key)
-_model = genai.GenerativeModel("gemini-2.5-flash-lite")
+_client = genai.Client(api_key=settings.gemini_api_key)
 
 
 def _ask(prompt: str) -> str:
-    return _model.generate_content(prompt).text.strip()
+    response = _client.models.generate_content(
+        model="gemini-2.5-flash-lite",
+        contents=prompt,
+    )
+    return response.text.strip()
 
 
 def generate_thai_summary(vendor_data: dict) -> str:
