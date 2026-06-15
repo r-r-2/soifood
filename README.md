@@ -120,11 +120,69 @@ soifood/
 ├── ai.py
 ├── config.py
 ├── requirements.txt
+├── requirements-dev.txt
+├── pytest.ini
 ├── Dockerfile
 ├── Procfile
 ├── static/
-└── templates/
+├── templates/
+└── tests/
+    ├── conftest.py            # env, in-memory SQLite, AI/TTS mocks
+    ├── unit/                  # ai.py, models.py, helpers
+    ├── routes/                # every FastAPI endpoint
+    ├── e2e/                   # Playwright mobile-viewport flows
+    └── fixtures/              # canned vendor data + AI responses + live smoke
 ```
+
+---
+
+## 🧪 Testing
+
+The suite ships with **59 tests** at **100% line coverage** of `ai.py`, `main.py`, `models.py`, and `config.py`. Three layers, all runnable from one command.
+
+### Setup
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -m playwright install chromium   # only needed for E2E
+```
+
+The default `mock_ai` / `mock_gtts` autouse fixtures stub Gemini and gTTS, so **no API key is required** to run tests. The root `conftest.py` sets safe placeholder env vars before any project module imports.
+
+### Run
+
+```bash
+# Everything (unit + routes + E2E)         — ~10s
+.venv/bin/python -m pytest
+
+# Fast feedback (unit + routes only)       — ~1s
+.venv/bin/python -m pytest tests/unit tests/routes
+
+# Browser E2E only                          — ~10s
+.venv/bin/python -m pytest tests/e2e
+
+# Coverage report
+.venv/bin/python -m pytest --cov=ai --cov=main --cov=models --cov=config --cov-report=term-missing
+
+# Live smoke against real Gemini (opt-in)  — costs $, needs real GEMINI_API_KEY
+.venv/bin/python -m pytest -m live tests/fixtures/live_smoke.py
+```
+
+### What's covered
+
+| Layer | Files | What it tests |
+|---|---|---|
+| **Unit** | `tests/unit/` | `ai.py` prompt shape + JSON parsing + markdown-fence stripping; `models.py` defaults + SHA256 phone hash + menu JSON roundtrip; QR PNG generation |
+| **Routes** | `tests/routes/` | Every endpoint: onboarding happy + 422, cache-aside hit/miss/bad-lang/404, microsite + card render + 404, QR PNG content-type, check-in (new/repeat/note/no-note/empty-note/persistence/404), leaderboard aggregation + top-20 cap, order audio MP3 + 503 + Thai lang, browse HTML + JSON + inactive filter, seed idempotency |
+| **E2E** | `tests/e2e/` | Playwright on iPhone 14 viewport against a real uvicorn subprocess: full onboarding flow + mismatched-phone validation, ordering cart → order card, check-in modal submission, browse-page client-side search |
+| **Live smoke** | `tests/fixtures/live_smoke.py` | Opt-in suite hitting the real Gemini API for all 6 `ai.py` functions. Skipped by default. |
+
+### Design notes
+
+- **In-memory SQLite** via `StaticPool` — no Postgres dependency for the test runner. Production Postgres-specific behavior (JSONB, FTS) isn't used, so SQLite is a safe stand-in.
+- **AI/TTS mocked by default**, real calls gated behind `@pytest.mark.live`. The `mock_ai` autouse fixture is opt-out per test, so unit tests can exercise the real `ai.py` against a stubbed `_ask`.
+- **E2E isolation** — each test module gets a fresh uvicorn subprocess pointed at a tempfile SQLite, with AI stubs injected via `tests/e2e/_app_for_e2e.py` before `main` is imported.
 
 ---
 

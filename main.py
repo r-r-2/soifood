@@ -158,6 +158,23 @@ def browse_vendors(request: Request):
     return templates.TemplateResponse(request, "vendors.html")
 
 
+# Strip <, >, ", ` — chars that break tag / attribute contexts in HTML.
+# Apostrophe is preserved (legitimate in names like "Auntie Noi's Pad Thai");
+# the client renderer escapes ' via esc() before interpolation.
+_DANGEROUS_HTML_CHARS = str.maketrans("", "", "<>\"`")
+
+
+def _strip_html_chars(s: str) -> str:
+    """Strip characters that have no legitimate use in vendor text fields but
+    enable HTML/JS injection if a downstream renderer ever drops escaping.
+
+    The client browse page (/vendors) uses an esc() helper before interpolating
+    into innerHTML, but this is defense-in-depth: any future renderer that
+    forgets to escape will still be safe.
+    """
+    return (s or "").translate(_DANGEROUS_HTML_CHARS)
+
+
 @app.post("/onboard")
 async def onboard_vendor(
     q1: str = Form(...),
@@ -168,6 +185,10 @@ async def onboard_vendor(
     q6: str = Form(...),
     phone_hash: str = Form(...),
 ):
+    q1, q2, q3, q4, q5, q6 = (
+        _strip_html_chars(q1), _strip_html_chars(q2), _strip_html_chars(q3),
+        _strip_html_chars(q4), _strip_html_chars(q5), _strip_html_chars(q6),
+    )
     vendor_data = {"q1": q1, "q2": q2, "q3": q3, "q4": q4, "q5": q5, "q6": q6}
 
     names = extract_vendor_names(q1, q3)
@@ -178,7 +199,7 @@ async def onboard_vendor(
     with Session(engine) as session:
         vendor = Vendor(
             vendor_name_thai=q1,
-            vendor_name_en=names["vendor_name_en"],
+            vendor_name_en=_strip_html_chars(names["vendor_name_en"]),
             owner_name=q1,
             thai_food_price=q2,
             thai_location=q3,
@@ -186,7 +207,7 @@ async def onboard_vendor(
             thai_payment=q5,
             thai_story=q6,
             location_thai=q3,
-            location_display=names["location_display"],
+            location_display=_strip_html_chars(names["location_display"]),
             menu_items=json.dumps(menu),
             phone_hash=phone_hash,
         )
