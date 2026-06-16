@@ -19,7 +19,6 @@ from ai import (
     generate_profile_for_language,
     generate_thai_summary,
     parse_menu_items,
-    update_living_portrait,
 )
 from config import SUPPORTED_LANGUAGES, settings
 from models import CheckIn, Vendor, VendorProfile
@@ -291,6 +290,12 @@ async def checkin(
     note: Optional[str] = Form(default=None),
     device_language: Optional[str] = Form(default=None),
 ):
+    # Bound untrusted free-text so a check-in cannot carry an oversized payload.
+    visitor_name = (visitor_name or "").strip()[:80]
+    if not visitor_name:
+        return JSONResponse({"error": "Name required"}, status_code=400)
+    note = (note.strip()[:280] or None) if note else None
+
     with Session(engine) as session:
         vendor = session.get(Vendor, vendor_id)
         if not vendor:
@@ -306,7 +311,7 @@ async def checkin(
             vendor_id=vendor_id,
             visitor_hash=visitor_hash,
             visitor_name=visitor_name,
-            note=note or None,
+            note=note,
             device_language=device_language,
         ))
 
@@ -317,17 +322,11 @@ async def checkin(
             vendor.unique_visitors += 1
         session.add(vendor)
 
-        if note and note.strip():
-            en_profile = session.exec(
-                select(VendorProfile)
-                .where(VendorProfile.vendor_id == vendor_id)
-                .where(VendorProfile.language_code == "en")
-            ).first()
-            if en_profile:
-                en_profile.profile_text = update_living_portrait(
-                    en_profile.profile_text, note, visitor_name, vendor.checkin_count
-                )
-                session.add(en_profile)
+        # NOTE: a visitor's note is stored and shown as a separate "Community
+        # Note" (see vendor.html), but it intentionally does NOT rewrite the
+        # vendor's authoritative profile_text. Letting an unauthenticated
+        # check-in mutate the public profile allowed anyone to overwrite/poison
+        # vendor content and inject text into the LLM prompt.
 
         session.commit()
         return JSONResponse({"points": 10, "total_checkins": vendor.checkin_count})

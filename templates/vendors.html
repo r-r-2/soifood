@@ -220,27 +220,42 @@
       return '🍽️';
     }
 
+    // Escape untrusted values before injecting into innerHTML (prevents stored XSS).
+    function esc(value) {
+      const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'};
+      return String(value == null ? '' : value).replace(/[&<>"']/g, c => map[c]);
+    }
+
+    // Only allow same-origin relative paths or http(s) photo URLs.
+    function safeUrl(url) {
+      const s = String(url == null ? '' : url).trim();
+      if (s.startsWith('/') || /^https?:\/\//i.test(s)) return s;
+      return '';
+    }
+
     function renderCard(v, idx) {
       const emoji = getPlaceholderEmoji(v.first_item);
-      const photoHtml = v.photo_url
-        ? `<img class="card-img" src="${v.photo_url}" alt="${v.vendor_name_en}" loading="lazy">`
+      const id = Number(v.id);                       // numeric — safe in onclick/href
+      const photoUrl = safeUrl(v.photo_url);
+      const photoHtml = photoUrl
+        ? `<img class="card-img" src="${esc(photoUrl)}" alt="${esc(v.vendor_name_en)}" loading="lazy">`
         : `<div class="card-img-placeholder">${emoji}</div>`;
 
       return `
         <div class="vendor-card card-enter" style="animation-delay:${idx * 60}ms"
-             onclick="window.location='/vendor/${v.id}'">
+             onclick="window.location='/vendor/${id}'">
           ${photoHtml}
           <div class="p-4">
             <div class="flex items-start justify-between gap-2 mb-1">
               <div>
-                <p class="text-[#B8924A] font-medium text-base leading-tight">${v.vendor_name_thai}</p>
-                <p class="text-white text-sm leading-snug">${v.vendor_name_en}</p>
+                <p class="text-[#B8924A] font-medium text-base leading-tight">${esc(v.vendor_name_thai)}</p>
+                <p class="text-white text-sm leading-snug">${esc(v.vendor_name_en)}</p>
               </div>
               <span class="checkin-badge shrink-0">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0 1 12 2.944a11.955 11.955 0 0 1-8.618 3.04A12.02 12.02 0 0 0 3 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                 </svg>
-                ${v.checkin_count}
+                ${Number(v.checkin_count) || 0}
               </span>
             </div>
 
@@ -249,12 +264,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 0 1-2.827 0l-4.244-4.243a8 8 0 1 1 11.314 0z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
               </svg>
-              <p class="text-[#4a6a8a] text-xs truncate">${v.location_display}</p>
+              <p class="text-[#4a6a8a] text-xs truncate">${esc(v.location_display)}</p>
             </div>
 
-            ${v.first_item ? `<p class="text-[#4a6a8a] text-xs mb-4">✦ ${v.first_item}</p>` : ''}
+            ${v.first_item ? `<p class="text-[#4a6a8a] text-xs mb-4">✦ ${esc(v.first_item)}</p>` : ''}
 
-            <a href="/vendor/${v.id}" class="view-btn" onclick="event.stopPropagation()">View menu →</a>
+            <a href="/vendor/${id}" class="view-btn" onclick="event.stopPropagation()">View menu →</a>
           </div>
         </div>
       `;
