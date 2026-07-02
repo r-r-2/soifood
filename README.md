@@ -2,9 +2,10 @@
 
 "The best meal of your trip is out there. Now you can find it, order it, and never forget the person who made it."
 
+[Project Deck](soifood-presentation.pdf)
+
 [Project Summary PDF](soifood-SEABWBangkokHackathon2026.pdf)
 
-[Project Deck](soifood-presentation.pdf)
 
 AI-powered street food discovery platform for Bangkok. Gives street food vendors an English digital presence — bilingual menu, community check-ins, and a printable QR card — connecting them with expat and tourist customers.
 
